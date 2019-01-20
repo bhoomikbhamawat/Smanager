@@ -349,7 +349,7 @@ public class MainActivity extends Activity
          * Fetch a list of names and majors of students in a sample spreadsheet:
          * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
          * @return List of names and majors
-         * @throws IOException
+         *
          */
         private List<String> getDataFromApi() throws IOException {
             String spreadsheetId = "1THhdUIIopAzMwh4IxTVoHP2WLtsS_EFgKg5ZeMekgQY";
