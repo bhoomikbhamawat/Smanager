@@ -61,15 +61,9 @@ public class Dashboard extends AppCompatActivity {
     private com.google.api.services.sheets.v4.Sheets mService = null;
     private Exception mLastError = null;
 
-    static final int REQUEST_ACCOUNT_PICKER = 1000;
-    static final int REQUEST_AUTHORIZATION = 1001;
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-
-    private static final String BUTTON_TEXT = "Call Google Sheets API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { SheetsScopes.SPREADSHEETS };
 
+    private static final String[] SCOPES = { SheetsScopes.SPREADSHEETS };
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -99,37 +93,9 @@ public class Dashboard extends AppCompatActivity {
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
+        SharedPreferences s = getPreferences(Context.MODE_PRIVATE);
+        mCredential.setSelectedAccountName(s.getString(PREF_ACCOUNT_NAME,""));
 
-
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.sheets.v4.Sheets.Builder(
-                    transport, jsonFactory, mCredential)
-                    .setApplicationName("Google Sheets API Android Quickstart")
-                    .build();
-        String spreadsheetId = "1THhdUIIopAzMwh4IxTVoHP2WLtsS_EFgKg5ZeMekgQY";
-      //  String range = "cancel_sheet!C5:P10";
-        List<String> results = new ArrayList<String>();
-
-
-
-        Object a1 = new Object();
-        a1 = "TESTx Row 1 Column A";
-
-
-        ValueRange body = new ValueRange()
-                .setValues(Arrays.asList(
-                        Arrays.asList(a1)
-
-                ));
-      /*  try {
-            this.mService.spreadsheets().values().update(spreadsheetId, "board_sheet!A1", body)
-                    .setValueInputOption("RAW")
-                    .execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

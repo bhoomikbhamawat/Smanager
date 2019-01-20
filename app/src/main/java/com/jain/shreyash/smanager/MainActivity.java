@@ -31,10 +31,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -68,20 +67,13 @@ public class MainActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
+        setContentView(R.layout.activity_main);
 
-        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        mCallApiButton = new Button(this);
-        mCallApiButton.setText(BUTTON_TEXT);
+        mCallApiButton = findViewById(R.id.btn_call_api);
+        mOutputText = findViewById(R.id.txt_output);
+        mOutputText.setVerticalScrollBarEnabled(true);
+        mOutputText.setMovementMethod(new ScrollingMovementMethod());
+        mOutputText.setText("Click the \'" + BUTTON_TEXT +"\' button to test the API.");
         mCallApiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,26 +83,15 @@ public class MainActivity extends Activity
                 mCallApiButton.setEnabled(true);
             }
         });
-        activityLayout.addView(mCallApiButton);
-
-        mOutputText = new TextView(this);
-        mOutputText.setLayoutParams(tlp);
-        mOutputText.setPadding(16, 16, 16, 16);
-        mOutputText.setVerticalScrollBarEnabled(true);
-        mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        mOutputText.setText(
-                "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
-        activityLayout.addView(mOutputText);
-
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Google Sheets API ...");
-
-        setContentView(activityLayout);
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
+
+//        new MakeRequestTask(mCredential).execute("READ");
     }
 
 
@@ -130,7 +111,8 @@ public class MainActivity extends Activity
         } else if (! isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
-            new MakeRequestTask(mCredential).execute();
+            Intent i=new Intent(MainActivity.this,Dashboard.class);
+            startActivity(i);
         }
     }
 
@@ -155,9 +137,7 @@ public class MainActivity extends Activity
                 getResultsFromApi();
             } else {
                 // Start a dialog from which the user can choose an account
-                startActivityForResult(
-                        mCredential.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+                startActivityForResult(mCredential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
             }
         } else {
             // Request the GET_ACCOUNTS permission via a user dialog
@@ -180,8 +160,7 @@ public class MainActivity extends Activity
      *     activity result.
      */
     @Override
-    protected void onActivityResult(
-            int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
@@ -317,7 +296,7 @@ public class MainActivity extends Activity
      * An asynchronous task that handles the Google Sheets API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
-    public class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
+    public class MakeRequestTask extends AsyncTask<String, Void, List<String>> {
         private com.google.api.services.sheets.v4.Sheets mService = null;
         private Exception mLastError = null;
 
@@ -332,12 +311,16 @@ public class MainActivity extends Activity
 
         /**
          * Background task to call Google Sheets API.
-         * @param params no parameters needed for this task.
+         * @param params Button clicked
          */
         @Override
-        protected List<String> doInBackground(Void... params) {
+        protected List<String> doInBackground(String... params) {
+            String myButton = params[0];
             try {
-                return getDataFromApi();
+                if(myButton.equals("READ"))
+                    return getDataFromApi();
+                else
+                    return null;
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
@@ -354,7 +337,7 @@ public class MainActivity extends Activity
         private List<String> getDataFromApi() throws IOException {
             String spreadsheetId = "1THhdUIIopAzMwh4IxTVoHP2WLtsS_EFgKg5ZeMekgQY";
             String range = "cancel_sheet!C5:P10";
-            List<String> results = new ArrayList<String>();
+            List<String> results = new ArrayList<>();
             ValueRange response = this.mService.spreadsheets().values()
                     .get(spreadsheetId, range)
                     .execute();
@@ -377,9 +360,6 @@ public class MainActivity extends Activity
                     results.add(row.get(7) + " " + row.get(10));
                 }
             }
-            Intent i=new Intent(MainActivity.this,Dashboard.class);
-
-            startActivity(i);
 
             return results;
         }
