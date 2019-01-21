@@ -1,16 +1,25 @@
 package com.jain.shreyash.smanager;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -36,6 +45,8 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.IOException;
@@ -46,12 +57,17 @@ import java.util.List;
 
 public class FragmentOffline extends Fragment implements AdapterView.OnItemSelectedListener,View.OnClickListener {
     private  String field;
-    Button btnDatePicker;
+    Button btnDatePicker,send_request;
     ArrayList<Integer> offline_coloumn_list = new ArrayList<Integer>();
     private int mYear, mMonth, mDay;
     TextView txtDate;
     ListView listView;
+    EditText student_reg_no;
+    int student_row;
     GoogleAccountCredential mCredential;
+    ArrayList<Integer> uncheck_bk = new ArrayList<Integer>();
+    ArrayList<Integer> uncheck_ln = new ArrayList<Integer>();
+   ArrayList<Integer> uncheck_dn = new ArrayList<Integer>();
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
 
@@ -64,19 +80,227 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
         //with the fragment you want to inflate
         View view = inflater.inflate(R.layout.fragment_offline, container, false);
         listView = (ListView) view.findViewById(R.id.listview_on_offline);
+        student_reg_no= view.findViewById(R.id.reg_no_on_offline);
 
         //like if the class is HomeFragment it should have R.layout.home_fragment
         //if it is DashboardFragment it should have R.layout.fragment_dashboard
 
 
 
+        send_request=view.findViewById(R.id.send_offline_cancel_request);
+
         btnDatePicker=(Button)view.findViewById(R.id.btn_date);
+
         btnDatePicker.setOnClickListener(this);
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                view.getContext().getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff());
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        // String accountName = getResources().getString(R.string.pref_account_name);
+        // = getActivity().getPreferences(Context.MODE_PRIVATE)
+               // .getString(PREF_ACCOUNT_NAME, null);
+        String accountName="";
+
+        accountName="sattvikmess@gmail.com";
+        mCredential.setSelectedAccountName(accountName);
+        //MakeRequest mk = new MakeRequest(mCredential);
+        //String data = mk.getData(view.getContext(),"Sheet1!A1:A2");
+        // if(data == null)
+        // data = "null";
+        // Log.i("DATA:","");
+       //
 
 
+        send_request.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(student_reg_no.getText().toString()==""){
+                    Toast.makeText(getActivity(),"Enter Register no. first", Toast.LENGTH_SHORT).show();
+                }
+                else if (offline_coloumn_list.size()==0){
+                        Toast.makeText(getActivity(),"Select dates to cancel", Toast.LENGTH_SHORT).show();
+                }
+               else {
+                    ListAdapter adapter = listView.getAdapter();
+                    uncheck_bk =((OfflineCustomListAdapter) adapter).unchecked_bk;
+                    uncheck_ln =((OfflineCustomListAdapter) adapter).unchecked_ln;
+                    uncheck_dn =((OfflineCustomListAdapter) adapter).unchecked_dn;
+                    student_row = Integer.parseInt(student_reg_no.getText().toString());
+
+                    student_row=7+(student_row-1)*3;
+                    Log.i("BK: ",uncheck_bk.toString());
+                    Log.i("LN: ",uncheck_ln.toString());
+                    Log.i("DN: ",uncheck_dn.toString());
+                    new MakeRequestTask(mCredential).execute();
+                }
+            }
+        });
 
 
         return view;
+    }
+
+    public class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
+        private com.google.api.services.sheets.v4.Sheets mService = null;
+        private Exception mLastError = null;
+        public ProgressDialog loginDialog = new ProgressDialog( getContext());
+        public Boolean flag;
+
+        MakeRequestTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.sheets.v4.Sheets.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Sheets API Android Quickstart")
+                    .build();
+        }
+
+        /**
+         * Background task to call Google Sheets API.
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected List<String> doInBackground(Void... params) {
+            try {
+                return getDataFromApi();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+        }
+
+        /**
+         * Fetch a list of names and majors of students in a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         * @return List of names and majors
+         *
+         */
+        private List<String> getDataFromApi() throws IOException {
+            String spreadsheetId = "1THhdUIIopAzMwh4IxTVoHP2WLtsS_EFgKg5ZeMekgQY";
+
+            List<String> results = new ArrayList<String>();
+            List<ValueRange> data = new ArrayList<>();
+            /*data.add(new ValueRange()
+                    .setRange("D1")
+                    .setValues(Arrays.asList(
+                            Arrays.asList("January Total"))));
+            data.add(new ValueRange()
+                    .setRange("D4")
+                    .setValues(Arrays.asList(
+                            Arrays.asList("February Total"))));*/
+
+
+            int num_dates=offline_coloumn_list.size();
+            for(int i=0;i<num_dates;i++){
+                StringBuilder columnName = new StringBuilder();
+                int columnNumber= offline_coloumn_list.get(i);
+
+                while (columnNumber > 0)
+                {
+                    // Find remainder
+                    int rem = columnNumber % 26;
+
+                    // If remainder is 0, then a
+                    // 'Z' must be there in output
+                    if (rem == 0)
+                    {
+                        columnName.append("Z");
+                        columnNumber = (columnNumber / 26) - 1;
+                    }
+                    else // If remainder is non-zero
+                    {
+                        columnName.append((char)((rem - 1) + 'A'));
+                        columnNumber = columnNumber / 26;
+                    }
+                }
+                String getcolumn= String.valueOf(columnName.reverse());
+
+                String cancel_range="bhaiya_sheet!"+getcolumn+student_row;
+                Log.i("COL : ",cancel_range);
+                if(!uncheck_bk.contains(new Integer(i))){
+                data.add(new ValueRange()
+                        .setRange(cancel_range)
+                        .setValues(Arrays.asList(
+                                Arrays.asList(0))));}
+                if(!uncheck_ln.contains(new Integer(i))){
+                    cancel_range="bhaiya_sheet!"+getcolumn+(student_row+1);
+                    data.add(new ValueRange()
+                            .setRange(cancel_range)
+                            .setValues(Arrays.asList(
+                                    Arrays.asList(0))));}
+                if(!uncheck_dn.contains(new Integer(i))){
+                    cancel_range="bhaiya_sheet!"+getcolumn+(student_row+2);
+                    data.add(new ValueRange()
+                            .setRange(cancel_range)
+                            .setValues(Arrays.asList(
+                                    Arrays.asList(0))));}
+
+
+
+            }
+            BatchUpdateValuesRequest batchBody = new BatchUpdateValuesRequest()
+                    .setValueInputOption("RAW")
+                    .setData(data);
+
+            BatchUpdateValuesResponse batchResult = this.mService.spreadsheets().values()
+                    .batchUpdate(spreadsheetId, batchBody)
+                    .execute();
+
+
+           /* Object a1 = new Object();
+            a1 = "1";
+            Object a2 = new Object();
+            a2 = "0";
+
+
+            ValueRange body = new ValueRange()
+                    .setValues(Arrays.asList(
+                            Arrays.asList(a1)
+
+                    ));
+            this.mService.spreadsheets().values().update(spreadsheetId, "board_sheet!A1", body)
+                    .setValueInputOption("RAW")
+                    .execute();*/
+
+
+
+
+            return results;
+        }
+
+
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("DATA:","1");
+            loginDialog.setMessage("Cancelling Meals");
+            loginDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(List<String> output) {
+            //mProgress.hide();
+            loginDialog.dismiss();
+            AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+            alertDialog.setTitle("DONE !");
+            alertDialog.setMessage("Diets are now cancelled");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+            if (output == null || output.size() == 0) {
+                Log.i("DATA:","2");
+            } else {
+                output.add(0, "Data retrieved using the Google Sheets API:");
+                Log.i("DATA:","3");
+            }
+        }
+
+
     }
 
     @Override
@@ -129,7 +353,7 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
                 off_dates[i]=reportDate;
                 off_day[i]=this_day;
                 make_ck_set[i]=true;
-                offline_coloumn_list.add(7+this_day_of_month+(this_month-1));
+                offline_coloumn_list.add(7+this_day_of_month+(this_month-1)*31);
 
 
             }

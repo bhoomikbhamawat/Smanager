@@ -91,6 +91,7 @@
         </ListView>
         <Button
             android:layout_width="match_parent"
+            android:id="@+id/send_offline_cancel_request"
             android:layout_height="wrap_content"
             android:text="CANCEL MEAL\nबंद करो"/>
 

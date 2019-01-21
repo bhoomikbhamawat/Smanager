@@ -9,9 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class OfflineCustomListAdapter extends ArrayAdapter {
+     public ArrayList<Integer> unchecked_bk = new ArrayList<Integer>();
+    public ArrayList<Integer> unchecked_ln = new ArrayList<Integer>();
+    public ArrayList<Integer> unchecked_dn = new ArrayList<Integer>();
 
 
     private final Activity context;
@@ -46,12 +52,47 @@ public class OfflineCustomListAdapter extends ArrayAdapter {
         CheckBox ck_dn=rowView.findViewById(R.id.offline_dinner_ck);
 
 
+
         //this code sets the values of the objects to values from the arrays
         offline_date.setText(offline_cancel_date[position]);
         offline_day_of_week.setText(offline_day_week[position]);
         ck_bk.setChecked(ck_breakfast_offline[position]);
         ck_dn.setChecked(ck_dinner_offline[position]);
         ck_ln.setChecked(ck_lunch_offline[position]);
+
+        ck_bk.setOnCheckedChangeListener(new  CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                if(!ck_bk.isChecked())
+                unchecked_bk.add(position);
+                else{
+                    unchecked_bk.remove(new Integer(position));
+                }
+            }
+        });
+        ck_ln.setOnCheckedChangeListener(new  CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                if(!ck_ln.isChecked())
+                    unchecked_ln.add(position);
+                else{
+                    unchecked_ln.remove(new Integer(position));
+                }
+            }
+        });
+        ck_dn.setOnCheckedChangeListener(new  CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                if(!ck_dn.isChecked())
+                    unchecked_dn.add(position);
+                else{
+                    unchecked_dn.remove(new Integer(position));
+                }
+            }
+        });
 
         return rowView;
 
