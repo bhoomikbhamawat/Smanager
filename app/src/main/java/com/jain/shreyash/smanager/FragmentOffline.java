@@ -1,7 +1,6 @@
 package com.jain.shreyash.smanager;
 
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,13 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +32,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
@@ -50,20 +45,19 @@ import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 
 public class FragmentOffline extends Fragment implements AdapterView.OnItemSelectedListener,View.OnClickListener {
     private  String field;
     Button btnDatePicker,send_request;
     ArrayList<Integer> offline_coloumn_list = new ArrayList<Integer>();
-    private int mYear, mMonth, mDay;
-    TextView txtDate;
+
+
     ListView listView;
     EditText student_reg_no;
     int student_row;
+    static int confirmation=0;
     GoogleAccountCredential mCredential;
     ArrayList<Integer> uncheck_bk = new ArrayList<Integer>();
     ArrayList<Integer> uncheck_ln = new ArrayList<Integer>();
@@ -73,6 +67,9 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
 
 
     private static final String[] SCOPES = { SheetsScopes.SPREADSHEETS };
+
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -112,13 +109,16 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
 
 
         send_request.setOnClickListener(new View.OnClickListener() {
+
+
+            int confirm=0;
             @Override
             public void onClick(View view) {
                 if(student_reg_no.getText().toString()==""){
                     Toast.makeText(getActivity(),"Enter Register no. first", Toast.LENGTH_SHORT).show();
                 }
                 else if (offline_coloumn_list.size()==0){
-                        Toast.makeText(getActivity(),"Select dates to cancel", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),"Select dates to cancel\nरद्द करने के लिए तिथियों का चयन करें", Toast.LENGTH_SHORT).show();
                 }
                else {
                     ListAdapter adapter = listView.getAdapter();
@@ -131,7 +131,10 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
                     Log.i("BK: ",uncheck_bk.toString());
                     Log.i("LN: ",uncheck_ln.toString());
                     Log.i("DN: ",uncheck_dn.toString());
-                    new MakeRequestTask(mCredential).execute();
+                    confirmation=0;
+                    createAlertDialog();
+
+
                 }
             }
         });
@@ -140,13 +143,13 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
         return view;
     }
 
-    public class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
+    public class MakeCancelRequestTask extends AsyncTask<Void, Void, List<String>> {
         private com.google.api.services.sheets.v4.Sheets mService = null;
         private Exception mLastError = null;
         public ProgressDialog loginDialog = new ProgressDialog( getContext());
         public Boolean flag;
 
-        MakeRequestTask(GoogleAccountCredential credential) {
+        MakeCancelRequestTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.sheets.v4.Sheets.Builder(
@@ -284,10 +287,16 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
             loginDialog.dismiss();
             AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
             alertDialog.setTitle("DONE !");
-            alertDialog.setMessage("Diets are now cancelled");
+            alertDialog.setMessage("Diets are now cancelled\nआपका भोजन रद्द कर दिया गया है");
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            ViewGroup.LayoutParams params = listView.getLayoutParams();
+                            params.height = 0;
+                            listView.setAdapter(null);
+                            listView.setLayoutParams(params);
+                            listView.requestLayout();
+                            student_reg_no.getText().clear();
                             dialog.dismiss();
                         }
                     });
@@ -317,14 +326,20 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onClick(View view) {
 
-        DatePickerBuilder builder = new DatePickerBuilder(getContext(),listener )
 
-                .pickerType(CalendarView.MANY_DAYS_PICKER);
+        if (student_reg_no.getText().toString().isEmpty() || Integer.valueOf(student_reg_no.getText().toString())>221 ){
+            Toast.makeText(getActivity(), "First enter Student Register No\nपहले छात्र रजिस्टर नंबर दर्ज करें", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            DatePickerBuilder builder = new DatePickerBuilder(getContext(), listener)
 
-        DatePicker datePicker = builder.build();
-        datePicker.show();
+                    .pickerType(CalendarView.MANY_DAYS_PICKER);
+
+            DatePicker datePicker = builder.build();
+            datePicker.show();
 
 
+        }
     }
     private OnSelectDateListener listener = new OnSelectDateListener() {
         @Override
@@ -366,5 +381,46 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
 
 
         }
+
     };
+
+    public void createAlertDialog() {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+
+        // Setting Dialog Title
+        alertDialog.setTitle("Confirm ?");
+
+        // Setting Dialog Message
+        alertDialog.setMessage("Check the details before cancelling\nStudent Register Number : "+student_reg_no.getText().toString());
+
+        // Setting Icon to Dialog
+        alertDialog.setIcon(R.drawable.ic_check_box_black_24dp);
+
+        // Setting Positive "Yes" Button
+        alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // User pressed YES button. Write Logic Here
+                confirmation=1;
+                new MakeCancelRequestTask(mCredential).execute();
+                //Toast.makeText(getContext(), "You clicked on YES",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // User pressed No button. Write Logic Here
+                confirmation=0;
+                Toast.makeText(getContext(), "You clicked on NO", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+
+        // Showing Alert Message
+        alertDialog.show();
+
+    }
 }

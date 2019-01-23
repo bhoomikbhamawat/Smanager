@@ -47,7 +47,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:alpha=".7"
+            android:alpha=".4"
             android:background="@android:color/background_dark" />
 
 
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
 
             android:textSize="18sp"
-            android:text="Select cancel dates\nआरंभ तिथि चुनें"/>
+            android:text="Select cancel dates\nरद्द करने की तारीखों\nका चयन करें"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -90,10 +90,26 @@
 
         </ListView>
         <Button
-            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:padding="24dp"
             android:id="@+id/send_offline_cancel_request"
             android:layout_height="wrap_content"
             android:text="CANCEL MEAL\nबंद करो"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha=".4"
+            android:background="@android:color/background_dark" />
+        <Button
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:padding="24dp"
+            android:id="@+id/full_breakfast_cancel"
+            android:layout_height="wrap_content"
+            android:text="Cancel month's Breakfast\nमहीने का नाश्ता रद्द करें"/>
 
 </LinearLayout>
 

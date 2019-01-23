@@ -1,6 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:background="#ecebeb"
+                android:padding="12sp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:textSize="18sp"
+
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp"
+
+                    android:textStyle="bold"
+                    android:text="Enter Student Register No\nछात्र रजिस्टर नंबर दर्ज करें"/>
+                <EditText
+                    android:layout_width="120dp"
+                    android:id="@+id/reg_no_on_offline"
+                    android:background="@color/common_google_signin_btn_text_dark_disabled"
+                    android:layout_height="50dp"
+                    android:inputType="number"
+
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:hint="Type here"
+                    />
+
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:alpha=".7"
+                android:background="@android:color/background_dark" />
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="22dp"
+            android:paddingRight="22dp"
+            android:orientation="vertical">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Check Attendance\nउपस्थिति की जाँच करें"
+
+            android:id="@+id/chk_att"
+            />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Add Guest\nअतिथि जोड़ें"
+
+            android:id="@+id/add_guest"
+            />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Add Extra\nअतिरिक्त जोड़ें"
+                android:id="@+id/add_extra"
+                />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Student's full info\nसदस्य की पूरी जानकारी प्राप्त करें"
+                android:id="@+id/full_info"
+                />
+        </LinearLayout>
+
+
+
+
+
+
+
+    </LinearLayout>
+
+</ScrollView>

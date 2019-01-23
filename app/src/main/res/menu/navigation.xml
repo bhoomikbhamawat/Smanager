@@ -4,7 +4,7 @@
     <item
         android:id="@+id/attendanceicon"
         android:icon="@drawable/ic_people_black_24dp"
-        android:title="Attendance" />
+        android:title="Students" />
 
     <item
         android:id="@+id/offlineicon"
