@@ -4,12 +4,14 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.speech.tts.TextToSpeech;
 import java.util.Locale;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,6 +78,23 @@ public class FragmentAttendance extends Fragment {
         Button chk_att=view.findViewById(R.id.chk_att);
         Button add_guest_btn=view.findViewById(R.id.add_guest);
         Button add_extra_btn=view.findViewById(R.id.add_extra);
+        Button get_student_profile=view.findViewById(R.id.full_info);
+        get_student_profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (student_reg_no.getText().toString().isEmpty()){
+
+                    Toast.makeText(getActivity().getApplicationContext(), "First enter Register Number\nरजिस्टर नंबर दर्ज करें",
+                            Toast.LENGTH_LONG).show();
+
+                }
+                else {
+                Intent i=new Intent(getActivity(),StudentProfile.class);
+                i.putExtra("Register",student_reg_no.getText().toString());
+
+                startActivity(i);
+            }}
+        });
 
         Date c = Calendar.getInstance().getTime();
         System.out.println("Current time => " + c);
