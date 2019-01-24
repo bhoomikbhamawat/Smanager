@@ -33,7 +33,7 @@
                     android:text="Enter Student Register No\nछात्र रजिस्टर नंबर दर्ज करें"/>
                 <EditText
                     android:layout_width="120dp"
-                    android:id="@+id/reg_no_on_offline"
+                    android:id="@+id/reg_no_on_attendance"
                     android:background="@color/common_google_signin_btn_text_dark_disabled"
                     android:layout_height="50dp"
                     android:inputType="number"
@@ -47,7 +47,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:alpha=".7"
+                android:alpha=".4"
                 android:background="@android:color/background_dark" />
 
 
@@ -57,11 +57,54 @@
             android:layout_height="wrap_content"
             android:paddingLeft="22dp"
             android:paddingRight="22dp"
+            android:paddingTop="12sp"
             android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="3"
+
+                android:orientation="horizontal">
+                <LinearLayout
+
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="2"
+                    android:layout_width="fill_parent">
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/RGroup">
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Breakfast"
+                        android:id="@+id/breakfast_radio"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lunch"
+                        android:id="@+id/lunch_radio"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dinner"
+                        android:id="@+id/dinner_radio" />
+                    </RadioGroup>
+
+
+
+
+
+
+                </LinearLayout>
         <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+
+            android:layout_weight="1"
+            android:layout_height="100dp"
+            android:layout_width="fill_parent"
+
 
             android:layout_gravity="center"
             android:gravity="center"
@@ -69,25 +112,131 @@
 
             android:id="@+id/chk_att"
             />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            </LinearLayout>
 
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Add Guest\nअतिथि जोड़ें"
-
-            android:id="@+id/add_guest"
-            />
-            <Button
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1.5dp"
+                android:alpha=".2"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@android:color/background_dark" />
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:weightSum="3"
 
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="Add Extra\nअतिरिक्त जोड़ें"
-                android:id="@+id/add_extra"
-                />
+                android:orientation="horizontal">
+                <LinearLayout
+
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="2"
+                    android:layout_width="fill_parent">
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/RGroupguest">
+
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1 Guest"
+                            android:id="@+id/og_radio"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2 Guest"
+                            android:id="@+id/tg_radio"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3 Guest"
+                            android:id="@+id/thg_radio" />
+                    </RadioGroup>
+
+
+
+
+
+
+                </LinearLayout>
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="100dp"
+
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Add Guest\nअतिथि जोड़ें"
+
+                    android:id="@+id/add_guest"
+                    />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1.5dp"
+                android:alpha=".2"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@android:color/background_dark" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="3"
+
+                android:orientation="horizontal">
+                <LinearLayout
+
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="2"
+                    android:layout_width="fill_parent">
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/RGroupextra">
+
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1 Extra"
+                            android:id="@+id/oe_radio"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2 Extra"
+                            android:id="@+id/te_radio"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3 Extra"
+                            android:id="@+id/the_radio" />
+                    </RadioGroup>
+
+
+
+
+
+
+                </LinearLayout>
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="100dp"
+
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Add Extra\nअतिरिक्त जोड़ें"
+
+                    android:id="@+id/add_extra"
+                    />
+            </LinearLayout>
+
+
+
+
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

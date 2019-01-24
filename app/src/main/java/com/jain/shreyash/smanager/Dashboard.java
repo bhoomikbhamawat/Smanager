@@ -1,5 +1,6 @@
 package com.jain.shreyash.smanager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -48,6 +49,10 @@ public class Dashboard extends AppCompatActivity implements BottomNavigationView
                 break;
 
 
+            case R.id.functionsicon:
+                fragment = new FragmentFunctions();
+                break;
+
         }
 
         return loadFragment(fragment);
@@ -63,5 +68,12 @@ public class Dashboard extends AppCompatActivity implements BottomNavigationView
             return true;
         }
         return false;
+    }
+    public void onBackPressed(){
+        Intent a = new Intent(Intent.ACTION_MAIN);
+        a.addCategory(Intent.CATEGORY_HOME);
+        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(a);
+
     }
 }

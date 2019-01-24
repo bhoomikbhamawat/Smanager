@@ -28,9 +28,11 @@ import com.applandeo.materialcalendarview.listeners.OnSelectDateListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -50,12 +52,14 @@ import java.util.Arrays;
 
 public class FragmentOffline extends Fragment implements AdapterView.OnItemSelectedListener,View.OnClickListener {
     private  String field;
-    Button btnDatePicker,send_request;
+    Button btnDatePicker,send_request,cancel_full_breakfast;
     ArrayList<Integer> offline_coloumn_list = new ArrayList<Integer>();
 
+    DatePicker datePicker_bk;
 
     ListView listView;
     EditText student_reg_no;
+    int this_month_dates,starting_bk_date,today_selected_cancelled_bk;
     int student_row;
     static int confirmation=0;
     GoogleAccountCredential mCredential;
@@ -84,9 +88,22 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
 
 
 
+        Calendar max = Calendar.getInstance();
+        max.add(Calendar.DAY_OF_MONTH, 15);
+        Calendar min = Calendar.getInstance();
+        min.add(Calendar.DAY_OF_MONTH, -15);
+        DatePickerBuilder builder_bk = new DatePickerBuilder(getContext(), listener_bk)
+                .pickerType(CalendarView.ONE_DAY_PICKER)
+                .minimumDate(min) // Minimum available date
+                .maximumDate(max);
+
+
+        datePicker_bk = builder_bk.build();
+        cancel_full_breakfast=view.findViewById(R.id.full_breakfast_cancel);
         send_request=view.findViewById(R.id.send_offline_cancel_request);
 
         btnDatePicker=(Button)view.findViewById(R.id.btn_date);
+
 
         btnDatePicker.setOnClickListener(this);
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -107,6 +124,29 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
         // Log.i("DATA:","");
        //
 
+        cancel_full_breakfast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(student_reg_no.getText().toString().isEmpty()){
+                    Toast.makeText(getActivity(),"Enter Register no. first", Toast.LENGTH_SHORT).show();
+                }
+
+
+                else {
+
+                    student_row = Integer.parseInt(student_reg_no.getText().toString());
+
+                    student_row=7+(student_row-1)*3;
+                    Log.i("BK: ",uncheck_bk.toString());
+                    Log.i("LN: ",uncheck_ln.toString());
+                    Log.i("DN: ",uncheck_dn.toString());
+                    confirmation=0;
+                    createAlertDialogbreakfast();
+
+
+                }
+            }
+        });
 
         send_request.setOnClickListener(new View.OnClickListener() {
 
@@ -331,9 +371,15 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
             Toast.makeText(getActivity(), "First enter Student Register No\nपहले छात्र रजिस्टर नंबर दर्ज करें", Toast.LENGTH_SHORT).show();
         }
         else {
+            Calendar maxc = Calendar.getInstance();
+            maxc.add(Calendar.DAY_OF_MONTH, 30);
+            Calendar minc = Calendar.getInstance();
+            minc.add(Calendar.DAY_OF_MONTH, -1);
             DatePickerBuilder builder = new DatePickerBuilder(getContext(), listener)
 
-                    .pickerType(CalendarView.MANY_DAYS_PICKER);
+                    .pickerType(CalendarView.MANY_DAYS_PICKER)
+                    .minimumDate(minc) // Minimum available date
+                    .maximumDate(maxc) ;
 
             DatePicker datePicker = builder.build();
             datePicker.show();
@@ -384,6 +430,8 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
 
     };
 
+
+
     public void createAlertDialog() {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
@@ -421,6 +469,237 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
 
         // Showing Alert Message
         alertDialog.show();
+
+    }
+    public void createAlertDialogbreakfast() {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+
+        // Setting Dialog Title
+        alertDialog.setTitle("Starting Date");
+
+        // Setting Dialog Message
+        alertDialog.setMessage("Select a starting date\nप्रारंभिक तिथि चुनें");
+
+        // Setting Icon to Dialog
+        alertDialog.setIcon(R.drawable.ic_date_range_black_24dp);
+
+        // Setting Positive "Yes" Button
+            alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // User pressed YES button. Write Logic Here
+
+                datePicker_bk.show();
+
+
+                //new MakeCancelRequestTask(mCredential).execute();
+                //Toast.makeText(getContext(), "You clicked on YES",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
+
+    }
+
+    private OnSelectDateListener listener_bk = new OnSelectDateListener() {
+        @Override
+        public void onSelect(List<Calendar> calendars) {
+
+
+            Calendar cal=calendars.get(0);
+            DateFormat df_month = new SimpleDateFormat("MM");
+            DateFormat df_day = new SimpleDateFormat("dd");
+            DateFormat df_year = new SimpleDateFormat("yyyy");
+
+// Get the date today using Calendar object.
+            Date today = cal.getTime();
+// Using DateFormat format method we can create a string
+// representation of a date with the defined format.
+            String reportDate = df_day.format(today);
+            String reportMonth = df_month.format(today);
+            Log.i("Here : ",reportMonth);
+            String reportYear = df_year.format(today);
+
+            int repot_int_day=Integer.valueOf(reportDate);
+            int repot_int_month=Integer.valueOf(reportMonth);
+            Log.i("Here 2 : ",repot_int_month+"");
+            int repot_int_year=Integer.valueOf(reportYear);
+            starting_bk_date=repot_int_day+7+(repot_int_month-1)*31;
+
+            today_selected_cancelled_bk=repot_int_day;
+
+            Log.i("Here : ",starting_bk_date+"");
+
+
+            int iYear = repot_int_year;
+            int iMonth = repot_int_month-1; // 1 (months begin with 0)
+            int iDay = repot_int_day;
+
+// Create a calendar object and set year and month
+            Calendar mycal = new GregorianCalendar(iYear, iMonth, iDay);
+
+// Get the number of days in that month
+            int daysInMonth = mycal.getActualMaximum(Calendar.DAY_OF_MONTH);
+            this_month_dates=daysInMonth;
+            new MakeBreakfastCancelRequestTask(mCredential).execute();
+
+        }
+
+    };
+
+    public class MakeBreakfastCancelRequestTask extends AsyncTask<Void, Void, List<String>> {
+        private com.google.api.services.sheets.v4.Sheets mService = null;
+        private Exception mLastError = null;
+        public ProgressDialog loginDialog = new ProgressDialog( getContext());
+        public Boolean flag;
+
+        MakeBreakfastCancelRequestTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.sheets.v4.Sheets.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Sheets API Android Quickstart")
+                    .build();
+        }
+
+        /**
+         * Background task to call Google Sheets API.
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected List<String> doInBackground(Void... params) {
+            try {
+                return getDataFromApi();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+        }
+
+        /**
+         * Fetch a list of names and majors of students in a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         * @return List of names and majors
+         *
+         */
+        private List<String> getDataFromApi() throws IOException {
+            String spreadsheetId = "1THhdUIIopAzMwh4IxTVoHP2WLtsS_EFgKg5ZeMekgQY";
+
+            List<String> results = new ArrayList<String>();
+            List<ValueRange> data = new ArrayList<>();
+            /*data.add(new ValueRange()
+                    .setRange("D1")
+                    .setValues(Arrays.asList(
+                            Arrays.asList("January Total"))));
+            data.add(new ValueRange()
+                    .setRange("D4")
+                    .setValues(Arrays.asList(
+                            Arrays.asList("February Total"))));*/
+
+
+            Log.i("Check : ","Hello");
+
+            Log.i("Check : ",this_month_dates+"");
+            Log.i("Check : ",starting_bk_date+"");
+            for(int i=0;i<=this_month_dates-today_selected_cancelled_bk;i++){
+                StringBuilder columnName = new StringBuilder();
+                int columnNumber= starting_bk_date+i;
+
+                while (columnNumber > 0)
+                {
+                    // Find remainder
+                    int rem = columnNumber % 26;
+
+                    // If remainder is 0, then a
+                    // 'Z' must be there in output
+                    if (rem == 0)
+                    {
+                        columnName.append("Z");
+                        columnNumber = (columnNumber / 26) - 1;
+                    }
+                    else // If remainder is non-zero
+                    {
+                        columnName.append((char)((rem - 1) + 'A'));
+                        columnNumber = columnNumber / 26;
+                    }
+                }
+                String getcolumn= String.valueOf(columnName.reverse());
+
+                String cancel_range="bhaiya_sheet!"+getcolumn+student_row;
+                Log.i("COL : ",cancel_range);
+
+                    data.add(new ValueRange()
+                            .setRange(cancel_range)
+                            .setValues(Arrays.asList(
+                                    Arrays.asList(0))));
+
+
+            }
+            BatchUpdateValuesRequest batchBody = new BatchUpdateValuesRequest()
+                    .setValueInputOption("RAW")
+                    .setData(data);
+
+            BatchUpdateValuesResponse batchResult = this.mService.spreadsheets().values()
+                    .batchUpdate(spreadsheetId, batchBody)
+                    .execute();
+
+
+           /* Object a1 = new Object();
+            a1 = "1";
+            Object a2 = new Object();
+            a2 = "0";
+
+
+            ValueRange body = new ValueRange()
+                    .setValues(Arrays.asList(
+                            Arrays.asList(a1)
+
+                    ));
+            this.mService.spreadsheets().values().update(spreadsheetId, "board_sheet!A1", body)
+                    .setValueInputOption("RAW")
+                    .execute();*/
+
+
+
+
+            return results;
+        }
+
+
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("DATA:","1");
+            loginDialog.setMessage("Cancelling Meals");
+            loginDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(List<String> output) {
+            //mProgress.hide();
+            loginDialog.dismiss();
+            AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+            alertDialog.setTitle("DONE !");
+            alertDialog.setMessage("Breakfasts are now cancelled\nआपका भोजन रद्द कर दिया गया है");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            student_reg_no.getText().clear();
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+            if (output == null || output.size() == 0) {
+                Log.i("DATA:","2");
+            } else {
+                output.add(0, "Data retrieved using the Google Sheets API:");
+                Log.i("DATA:","3");
+            }
+        }
+
 
     }
 }

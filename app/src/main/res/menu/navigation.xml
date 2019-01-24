@@ -16,4 +16,8 @@
         android:icon="@drawable/ic_playlist_add_check_black_24dp"
         android:title="Online X" />
 
+    <item
+        android:id="@+id/functionsicon"
+        android:icon="@drawable/ic_functions_black_24dp"
+        android:title="Functions" />
 </menu>

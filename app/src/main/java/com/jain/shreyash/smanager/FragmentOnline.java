@@ -143,12 +143,18 @@ public class FragmentOnline extends Fragment {
                 int getrow=0;
                 for (List row : values) {
                     getrow=getrow+1;
-                    if (row.get(0).toString().isEmpty()){break;}
-                    Log.d("details",row.get(7)+" : "+ row.get(0));
+                    if (row.get(0).toString().isEmpty()|| getrow>1500|| (row.get(9)+"").equals("#N/A") ){
+                        Log.d("details ","khatam");
+
+                        break;
+
+                    }
+                    Log.d("details",row.get(7)+" : "+ row.get(0)+" : "+(row.get(6)).toString());
                     if(Integer.valueOf((row.get(6)).toString())==-1){
                         student_reg_no.add(Integer.valueOf(row.get(7)+""));
                         student_details.add(row.get(7)+" : "+ row.get(0));
                         cancel_date.add(row.get(10)+"");
+                        Log.i("Ye date column",row.get(9)+"");
                         date_column.add(Integer.valueOf(row.get(9)+""));
                         row_list.add(getrow);
                         if (row.get(2).toString().equals("1"))
@@ -160,7 +166,7 @@ public class FragmentOnline extends Fragment {
                         if (row.get(4).toString().equals("1"))
                             ck_list_dn.add(true);
                         else ck_list_dn.add(false);
-                    results.add(row.get(0) + ", " + row.get(4));
+
 
                     }
                 }
@@ -173,7 +179,7 @@ public class FragmentOnline extends Fragment {
         @Override
         protected void onPreExecute() {
             Log.i("DATA:","1");
-            loginDialog.setMessage("Cancelling Meals");
+            loginDialog.setMessage("Getting requests");
             loginDialog.show();
         }
 
@@ -182,7 +188,7 @@ public class FragmentOnline extends Fragment {
             //mProgress.hide();
             ViewGroup.LayoutParams params = listView.getLayoutParams();
             int num_dates=student_details.size();
-            params.height = (165)*num_dates;
+            params.height = (210)*num_dates;
             String[] student_stringArray = student_details.toArray(new String[0]);
             String[] cancel_date_stringArray = cancel_date.toArray(new String[0]);
             Boolean[] bk_list = ck_list_bk.toArray(new Boolean[0]);
