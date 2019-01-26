@@ -409,7 +409,7 @@ public class FragmentAttendance extends Fragment {
             }
             else {
 
-                s1="Let him eat";
+                s1="Let him/her eat";
                 s2=" present";
             }
             warn_user=-1;
