@@ -65,40 +65,7 @@
                 android:weightSum="3"
 
                 android:orientation="horizontal">
-                <LinearLayout
 
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="2"
-                    android:layout_width="fill_parent">
-                    <RadioGroup
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/RGroup">
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Breakfast"
-                        android:id="@+id/breakfast_radio"/>
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lunch"
-                        android:id="@+id/lunch_radio"/>
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Dinner"
-                        android:id="@+id/dinner_radio" />
-                    </RadioGroup>
-
-
-
-
-
-
-                </LinearLayout>
         <Button
 
             android:layout_weight="1"

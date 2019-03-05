@@ -12,7 +12,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".StudentProfile"></activity>
+        <activity android:name=".LocalAttendence"></activity>
+        <activity android:name=".StudentProfile" />
         <activity
             android:name=".MainActivity"
             android:label="S Manager"

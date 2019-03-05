@@ -123,7 +123,7 @@ public class FragmentAttendance extends Fragment {
         chk_att.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(student_reg_no.getText().toString().isEmpty()){
+              /*  if(student_reg_no.getText().toString().isEmpty()){
                     Toast.makeText(getActivity().getApplicationContext(), "First enter Register Number\nरजिस्टर नंबर दर्ज करें",
                             Toast.LENGTH_LONG).show();
                 }
@@ -137,7 +137,13 @@ public class FragmentAttendance extends Fragment {
 
 
                     new AttendanceRequestTask(mCredential).execute();
-                }
+                }*/
+
+
+              Intent i=new Intent(getContext(),LocalAttendence.class);
+              startActivity(i);
+
+
             }
         });
 
@@ -185,7 +191,7 @@ public class FragmentAttendance extends Fragment {
         accountName="sattvikmess@gmail.com";
         mCredential.setSelectedAccountName(accountName);
 
-        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.RGroup);
+        /*RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.RGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
             @Override
@@ -206,7 +212,7 @@ public class FragmentAttendance extends Fragment {
                 }
             }
 
-        });
+        });*/
 
         RadioGroup radioGroupGuest = (RadioGroup) view.findViewById(R.id.RGroupguest);
         radioGroupGuest.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
