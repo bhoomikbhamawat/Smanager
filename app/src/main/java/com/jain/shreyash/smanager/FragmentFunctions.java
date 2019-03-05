@@ -89,7 +89,7 @@ public class FragmentFunctions extends Fragment {
         accountName = "sattvikmess@gmail.com";
         mCredential.setSelectedAccountName(accountName);
 
-        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.RGroup);
+      //  RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.RGroup);
 
         StringBuilder columnName = new StringBuilder();
         int columnNumber = today_column;
