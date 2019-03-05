@@ -143,14 +143,14 @@ public class FragmentOnline extends Fragment {
                 int getrow=0;
                 for (List row : values) {
                     getrow=getrow+1;
-                    if (row.get(0).toString().isEmpty()|| getrow>1500|| (row.get(9)+"").equals("#N/A") ){
+                    if (row.get(0).toString().isEmpty()|| getrow>5000|| (row.get(9)+"").equals("#N/A") ){
                         Log.d("details ","khatam");
 
                         break;
 
                     }
-                    Log.d("details",row.get(7)+" : "+ row.get(0)+" : "+(row.get(6)).toString());
-                    if(Integer.valueOf((row.get(6)).toString())==-1){
+                    Log.d("details",getrow+" "+row.get(7)+" : "+ row.get(0)+" : "+(row.get(6)).toString());
+                    if(Integer.valueOf((row.get(6)).toString())==-1 ){
                         student_reg_no.add(Integer.valueOf(row.get(7)+""));
                         student_details.add(row.get(7)+" : "+ row.get(0));
                         cancel_date.add(row.get(10)+"");

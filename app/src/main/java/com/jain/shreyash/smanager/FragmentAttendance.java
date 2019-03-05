@@ -494,6 +494,7 @@ public class FragmentAttendance extends Fragment {
             {
                 Log.i("Extra bK :","bk");
                 String bk_range_att=check_atte_range+student_row;
+                Log.i("Extra bK :",bk_range_att);
                 ValueRange result = mService.spreadsheets().values().get(spreadsheetId,bk_range_att).execute();
                 String get_now_diet=result.getValues().toString();
                 get_now_diet=get_now_diet.substring(2,3);
@@ -679,7 +680,9 @@ public class FragmentAttendance extends Fragment {
                 String bk_range_att=check_atte_range+student_row;
                 ValueRange result = mService.spreadsheets().values().get(spreadsheetId,bk_range_att).execute();
                 String get_now_diet=result.getValues().toString();
+                Log.i("Extra bK 11 :",get_now_diet);
                 get_now_diet=get_now_diet.substring(2,3);
+                Log.i("Extra bK 22:",get_now_diet);
                 if (get_now_diet.isEmpty()) get_now_diet=("0");
                 Log.i("Extra bK :",get_now_diet);
 
