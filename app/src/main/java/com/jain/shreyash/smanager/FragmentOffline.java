@@ -94,8 +94,7 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
         min.add(Calendar.DAY_OF_MONTH, -15);
         DatePickerBuilder builder_bk = new DatePickerBuilder(getContext(), listener_bk)
                 .pickerType(CalendarView.ONE_DAY_PICKER)
-                .minimumDate(min) // Minimum available date
-                .maximumDate(max);
+                ;
 
 
         datePicker_bk = builder_bk.build();
