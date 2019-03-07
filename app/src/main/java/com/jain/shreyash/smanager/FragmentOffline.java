@@ -416,6 +416,7 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
                 offline_coloumn_list.add(7+this_day_of_month+(this_month-1)*31);
 
 
+
             }
             ViewGroup.LayoutParams params = listView.getLayoutParams();
             params.height = (165)*num_dates;

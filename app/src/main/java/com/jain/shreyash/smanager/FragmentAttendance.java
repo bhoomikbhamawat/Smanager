@@ -45,6 +45,9 @@ import java.util.List;
 public class FragmentAttendance extends Fragment {
 
     GoogleAccountCredential mCredential;
+    public List<List<Object>> local_values;
+    public static ArrayList<Integer> diet_data= new ArrayList<>();
+    public static ArrayList<String> name_data= new ArrayList<>();
     int choise_attendance=-1;
     int this_month,warn_user=-1,add_guest=0,add_extra=0;
     TextToSpeech t1;
@@ -79,6 +82,7 @@ public class FragmentAttendance extends Fragment {
         Button add_guest_btn=view.findViewById(R.id.add_guest);
         Button add_extra_btn=view.findViewById(R.id.add_extra);
         Button get_student_profile=view.findViewById(R.id.full_info);
+
         get_student_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,9 +143,10 @@ public class FragmentAttendance extends Fragment {
                     new AttendanceRequestTask(mCredential).execute();
                 }*/
 
+              new LocalAttendanceTask(mCredential).execute();
 
-              Intent i=new Intent(getContext(),LocalAttendence.class);
-              startActivity(i);
+             // Intent i=new Intent(getContext(),LocalAttendence.class);
+             // startActivity(i);
 
 
             }
@@ -445,6 +450,162 @@ public class FragmentAttendance extends Fragment {
 
 
     }
+
+
+
+    public class LocalAttendanceTask extends AsyncTask<Void, Void, List<String>> {
+        private com.google.api.services.sheets.v4.Sheets mService = null;
+        private Exception mLastError = null;
+        public ProgressDialog loginDialog = new ProgressDialog( getContext());
+        public Boolean flag;
+
+        LocalAttendanceTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.sheets.v4.Sheets.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Sheets API Android Quickstart")
+                    .build();
+        }
+
+        /**
+         * Background task to call Google Sheets API.
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected List<String> doInBackground(Void... params) {
+            try {
+                return getDataFromApi();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+        }
+
+        /**
+         * Fetch a list of names and majors of students in a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         * @return List of names and majors
+         *
+         */
+        private List<String> getDataFromApi() throws IOException {
+            String spreadsheetId = "1THhdUIIopAzMwh4IxTVoHP2WLtsS_EFgKg5ZeMekgQY";
+
+            List<String> results = new ArrayList<String>();
+            String check_atte_range="bhaiya_sheet!"+getcolumn+":"+getcolumn;
+            String get_name_range="bhaiya_sheet!B:B";
+            List<ValueRange> data = new ArrayList<>();
+
+           // String name_range="bhaiya_sheet!"+"B"+student_row;
+           // ValueRange name=mService.spreadsheets().values().get(spreadsheetId,name_range).execute();
+           // student_name=name.getValues().toString();
+           // student_name=student_name.substring(2,student_name.length()-2);
+            String bk_att=check_atte_range;
+            Log.d("range ",bk_att);
+           // ValueRange resultes = mService.spreadsheets().values().get(spreadsheetId,bk_att).execute();
+
+           // Log.i("Attendance :",resultes.getValues().toString());
+            ValueRange response = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, bk_att)
+                    .execute();
+            local_values = response.getValues();
+            ValueRange response_name = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, get_name_range)
+                    .execute();
+            List<List<Object>> local_names = response_name.getValues();
+            Log.d("all the  ",local_values.toString());
+            Log.d("all the  ",local_names.toString());
+            if (local_names != null) {
+
+                Log.d("hello name  ","khatam");
+                int getrow=0;
+                for (List row_name : local_names) {
+                    getrow=getrow+1;
+                    Log.d("det name ",getrow+"");
+                    if ( getrow>671){
+                        Log.d("details ","khatam");
+
+                        break;
+
+                    }
+                    //  Log.d("details",getrow+(row.get(0)).toString());
+                    if(getrow>=7 ){
+
+                        if ((getrow-7)%3==0){
+
+                            name_data.add(row_name.get(0).toString());
+                            Log.i("name ",((row_name.get(0)).toString()));
+
+                        }
+
+
+                    }
+                }
+            }
+
+
+            if (local_values != null) {
+
+                Log.d("hello  ","khatam");
+                int getrow=0;
+                for (List row : local_values) {
+                    getrow=getrow+1;
+                    Log.d("det ",getrow+"");
+                    if ( getrow>671){
+                        Log.d("details ","khatam");
+
+                        break;
+
+                    }
+                  //  Log.d("details",getrow+(row.get(0)).toString());
+                    if(getrow>=7 ){
+
+
+                      diet_data.add( Integer.valueOf((row.get(0)).toString()));
+                        Log.i("details ",((row.get(0)).toString()));
+
+                    }
+                }
+            }
+
+
+
+
+            return results;
+        }
+
+
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("DATA:","1");
+            loginDialog.setMessage("Checking attendance...");
+            loginDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(List<String> output) {
+            //mProgress.hide();
+
+            warn_user=-1;
+            loginDialog.dismiss();
+
+
+          Intent i=new Intent(getActivity(),LocalAttendence.class);
+          startActivity(i);
+            if (output == null || output.size() == 0) {
+                Log.i("DATA:","2");
+            } else {
+                output.add(0, "Data retrieved using the Google Sheets API:");
+                Log.i("DATA:","3");
+            }
+        }
+
+
+    }
+
+
     public class GuestRequestTask extends AsyncTask<Void, Void, List<String>> {
         private com.google.api.services.sheets.v4.Sheets mService = null;
         private Exception mLastError = null;

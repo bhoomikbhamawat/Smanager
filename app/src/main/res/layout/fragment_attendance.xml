@@ -19,6 +19,21 @@
                 android:padding="12sp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+                <Button
+
+                    android:layout_weight="1"
+                    android:layout_height="100dp"
+                    android:layout_width="fill_parent"
+
+
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Check Attendance\nउपस्थिति की जाँच करें"
+                    android:textSize="22dp"
+                    android:layout_marginBottom="20dp"
+
+                    android:id="@+id/chk_att"
+                    />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -66,19 +81,7 @@
 
                 android:orientation="horizontal">
 
-        <Button
 
-            android:layout_weight="1"
-            android:layout_height="100dp"
-            android:layout_width="fill_parent"
-
-
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Check Attendance\nउपस्थिति की जाँच करें"
-
-            android:id="@+id/chk_att"
-            />
             </LinearLayout>
 
             <View
