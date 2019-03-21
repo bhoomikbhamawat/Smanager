@@ -567,6 +567,8 @@ public class FragmentAttendance extends Fragment {
 
                     }
                 }
+                Log.d("here local ",diet_data.toString());
+
             }
 
 
@@ -593,6 +595,7 @@ public class FragmentAttendance extends Fragment {
 
 
           Intent i=new Intent(getActivity(),LocalAttendence.class);
+          i.putExtra("Today Col",getcolumn);
           startActivity(i);
             if (output == null || output.size() == 0) {
                 Log.i("DATA:","2");

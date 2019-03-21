@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,7 +27,12 @@ import com.applandeo.materialcalendarview.DatePicker;
 import com.applandeo.materialcalendarview.builders.DatePickerBuilder;
 import com.applandeo.materialcalendarview.listeners.OnSelectDateListener;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -48,6 +54,12 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.IOException;
 import java.util.Arrays;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 
 
 public class FragmentOffline extends Fragment implements AdapterView.OnItemSelectedListener,View.OnClickListener {
@@ -56,7 +68,11 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
     ArrayList<Integer> offline_coloumn_list = new ArrayList<Integer>();
 
     DatePicker datePicker_bk;
+    String[] off_dates;
 
+    String student_name;
+
+    String student_email;
     ListView listView;
     EditText student_reg_no;
     int this_month_dates,starting_bk_date,today_selected_cancelled_bk;
@@ -233,6 +249,14 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
                             Arrays.asList("February Total"))));*/
 
 
+            String name_range="bhaiya_sheet!"+"B"+student_row;
+            ValueRange sname=mService.spreadsheets().values().get(spreadsheetId,name_range).execute();
+            student_name=sname.getValues().toString();
+            String email_range="bhaiya_sheet!"+"A"+student_row;
+            ValueRange semail=mService.spreadsheets().values().get(spreadsheetId,email_range).execute();
+            student_email=semail.getValues().toString();
+            student_email=student_email.substring(2,student_email.length()-2);
+            student_name=student_name.substring(2,student_name.length()-2);
             int num_dates=offline_coloumn_list.size();
             for(int i=0;i<num_dates;i++){
                 StringBuilder columnName = new StringBuilder();
@@ -260,23 +284,37 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
 
                 String cancel_range="bhaiya_sheet!"+getcolumn+student_row;
                 Log.i("COL : ",cancel_range);
+                int meal_sum=0;
                 if(!uncheck_bk.contains(new Integer(i))){
                 data.add(new ValueRange()
                         .setRange(cancel_range)
                         .setValues(Arrays.asList(
-                                Arrays.asList(0))));}
+                                Arrays.asList(0))));
+                meal_sum+=1;}
                 if(!uncheck_ln.contains(new Integer(i))){
                     cancel_range="bhaiya_sheet!"+getcolumn+(student_row+1);
                     data.add(new ValueRange()
                             .setRange(cancel_range)
                             .setValues(Arrays.asList(
-                                    Arrays.asList(0))));}
+                                    Arrays.asList(0))));
+                    meal_sum+=3;}
                 if(!uncheck_dn.contains(new Integer(i))){
                     cancel_range="bhaiya_sheet!"+getcolumn+(student_row+2);
                     data.add(new ValueRange()
                             .setRange(cancel_range)
                             .setValues(Arrays.asList(
-                                    Arrays.asList(0))));}
+                                    Arrays.asList(0))));
+                    meal_sum+=5;}
+                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+
+                try {
+                    Date date = format.parse(off_dates[i]);
+                    uploadCancelDetails(meal_sum,date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+
 
 
 
@@ -392,7 +430,7 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
             offline_coloumn_list.clear();
 
             int num_dates=calendars.size();
-            String[] off_dates = new String[num_dates];
+            off_dates = new String[num_dates];
             String[] off_day = new String[num_dates];
             Boolean[] make_ck_set =new Boolean[num_dates];
             Toast.makeText(getActivity(), String.valueOf(num_dates), Toast.LENGTH_SHORT).show();
@@ -701,5 +739,91 @@ public class FragmentOffline extends Fragment implements AdapterView.OnItemSelec
         }
 
 
+    }
+    void uploadCancelDetails(int meals, Date rq_date)
+    {
+
+        final String Acceptance = "1";
+        final String b = (meals == 1 || meals == 4 || meals == 6 || meals ==  9)? "1":"0";
+        final String d = (meals == 5 || meals == 6 || meals == 8 || meals ==  9)? "1":"0";
+        final String l = (meals == 3 || meals == 4 || meals == 8 || meals ==  9)? "1":"0";
+        //Todo take diet from shared preference
+        final String diet = "1";
+
+        //sharedPreferences = this.getSharedPreferences(Constants.MY_PREFERENCE, Context.MODE_PRIVATE);
+        final String name = student_name;
+
+        final DateFormat df = new SimpleDateFormat("yyyy/M/d h:mm:ss a");
+        final String request_date = df.format(rq_date);
+
+        final String email = student_email;
+        final String email_refined = email.replaceAll("\\W+", "");
+
+       // sharedPreferences = getSharedPreferences(Constants.MY_PREFERENCE, Context.MODE_PRIVATE);
+        //final SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        //Time from server
+        final Calendar calendar = Calendar.getInstance();
+        DatabaseReference offsetRef = FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset");
+        offsetRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                double offset = snapshot.getValue(Double.class);
+                double estimatedServerTimeMs = System.currentTimeMillis() + offset;
+                calendar.setTimeInMillis(((long) estimatedServerTimeMs));
+                calendar.setTimeInMillis(((long) estimatedServerTimeMs));
+                Log.d("inter",""+calendar.getTime());
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                System.err.println("Listener was cancelled");
+            }
+        });
+
+        //Toast.makeText(this, ""+request_date, Toast.LENGTH_SHORT).show();
+        FirebaseDatabase PostReference = FirebaseDatabase.getInstance();
+        final DatabaseReference mPostReference = PostReference.getReference("cancel_sheet");
+
+        final String key = mPostReference.child(email_refined).push().getKey();
+        mPostReference.child(email_refined).
+                addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        CancelDetails cancelDetails;
+                        //Creating record to Firebase
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy/M/d h:mm:ss a");
+
+                        cancelDetails = new CancelDetails(
+                                Acceptance,
+                                b,
+                                d,
+                                format.format(calendar.getTime()),
+                                diet,
+                                email,
+                                l,
+                                name,
+                                request_date
+                        );
+                        mPostReference.child(email_refined).child(key).setValue(cancelDetails);
+                        String filename = "CancelData";
+                        //Getting number of cancel requests
+                        int count = 0;
+
+
+                        //Updating internal storage
+
+                        //Toast.makeText(getContext(), "request sent", Toast.LENGTH_LONG).show();
+                      //  Intent i = new Intent(ConfirmCancel.this, Dashboard.class);
+                       // i.putExtra("EXTRA", "notopenFragment");
+                       // startActivity(i);
+                        //finish();
+
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        //Toast.makeText(ConfirmCancel.this, "Unable to send request", Toast.LENGTH_LONG).show();
+                        Log.w("cancel uplodaed or not", "loadPost:onCancelled", databaseError.toException());
+                    }
+                });
     }
 }
