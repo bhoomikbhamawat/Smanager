@@ -39,6 +39,7 @@ public class FragmentOnline extends Fragment {
     GoogleAccountCredential mCredential;
     ArrayList<String> student_details = new ArrayList<String>();
     ArrayList<String> cancel_date = new ArrayList<String>();
+    ArrayList<String> student_email = new ArrayList<String>();
     ArrayList<Integer> row_list= new ArrayList<>();
     ArrayList<Integer> date_column= new ArrayList<>();
 
@@ -83,6 +84,7 @@ public class FragmentOnline extends Fragment {
                 position=i;
                 Toast.makeText(getContext(), "Selected: " + i, Toast.LENGTH_SHORT).show();
                 createAlertDialog();
+
 
             }
         });
@@ -132,7 +134,7 @@ public class FragmentOnline extends Fragment {
         private List<String> getDataFromApi() throws IOException {
             String spreadsheetId = "1THhdUIIopAzMwh4IxTVoHP2WLtsS_EFgKg5ZeMekgQY";
 
-            String range = "cancel_sheet!C5:M";
+            String range = "cancel_sheet!B5:M";
             List<String> results = new ArrayList<String>();
             ValueRange response = this.mService.spreadsheets().values()
                     .get(spreadsheetId, range)
@@ -143,27 +145,28 @@ public class FragmentOnline extends Fragment {
                 int getrow=0;
                 for (List row : values) {
                     getrow=getrow+1;
-                    if (row.get(0).toString().isEmpty()|| getrow>5000|| (row.get(9)+"").equals("#N/A") ){
+                    if (row.get(0).toString().isEmpty()|| getrow>5000|| (row.get(10)+"").equals("#N/A") ){
                         Log.d("details ","khatam");
 
                         break;
 
                     }
-                    Log.d("details",getrow+" "+row.get(7)+" : "+ row.get(0)+" : "+(row.get(6)).toString());
-                    if(Integer.valueOf((row.get(6)).toString())==-1 ){
-                        student_reg_no.add(Integer.valueOf(row.get(7)+""));
-                        student_details.add(row.get(7)+" : "+ row.get(0));
-                        cancel_date.add(row.get(10)+"");
-                        Log.i("Ye date column",row.get(9)+"");
-                        date_column.add(Integer.valueOf(row.get(9)+""));
+                    Log.d("details",getrow+" "+row.get(8)+" : "+ row.get(1)+" : "+(row.get(7)).toString());
+                    if(Integer.valueOf((row.get(7)).toString())==-1 ){
+                        student_reg_no.add(Integer.valueOf(row.get(8)+""));
+                        student_email.add(row.get(0)+"");
+                        student_details.add(row.get(8)+" : "+ row.get(1));
+                        cancel_date.add(row.get(11)+"");
+                        Log.i("Ye date column",row.get(10)+"");
+                        date_column.add(Integer.valueOf(row.get(10)+""));
                         row_list.add(getrow);
-                        if (row.get(2).toString().equals("1"))
+                        if (row.get(3).toString().equals("1"))
                         ck_list_bk.add(true);
                         else ck_list_bk.add(false);
-                        if (row.get(3).toString().equals("1"))
+                        if (row.get(4).toString().equals("1"))
                             ck_list_ln.add(true);
                         else ck_list_ln.add(false);
-                        if (row.get(4).toString().equals("1"))
+                        if (row.get(5).toString().equals("1"))
                             ck_list_dn.add(true);
                         else ck_list_dn.add(false);
 
@@ -338,7 +341,12 @@ public class FragmentOnline extends Fragment {
 
         @Override
         protected void onPostExecute(List<String> output) {
+
+
+            String email_id=student_email.get(position);
+            //:TODO :: use email_id here for notifications
             //mProgress.hide();
+            student_email.remove(position);
             student_details.remove(position);
             cancel_date.remove(position);
             ck_list_bk.remove(position);
